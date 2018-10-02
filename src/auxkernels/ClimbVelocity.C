@@ -16,8 +16,15 @@ InputParameters
 validParams<ClimbVelocity>()
 {
   InputParameters params = validParams<AuxKernel>();
-  params.addParam<Real>("value", 0.0, "Scalar value used for our auxiliary calculation");
   params.addRequiredCoupledVar("coupled", "Coupled variable");
+  params.addParam<Real>("value", 0.0, "Scalar value used for our auxiliary calculation");
+  params.addParam<Real>("diffusivity", 1.18e-5, "[m^2/s], diffusion coefficient pre-exponential");
+  params.addParam<Real>("Uvd", "[eV], vacancy migration energy");
+  params.addParam<Real>("Uvf", "[eV], vacancy formation energy");
+  params.addParam<Real>("kB", 1.3806e-23 ,"m^2kg/s^2/K], Boltzmann constant");
+  params.addParam<Real>("eV2J", 1.60218e-19 ,"[J/eV], convert eV to Joules");
+  params.addParam<Real>("T", "[K], temperature");
+  params.addParam<Real>("burgers", "[m], burger's vector magnitude");
   return params;
 }
 
@@ -28,7 +35,17 @@ ClimbVelocity::ClimbVelocity(const InputParameters & parameters)
     _coupled_val(coupledValue("coupled")),
 
     // Set our member scalar value from InputParameters (read from the input file)
-    _value(getParam<Real>("value"))
+    _value(getParam<Real>("value")),
+
+    _diffusivity(getParam<Real>("diffusivity")),
+    _Uvd(getParam<Real>("Uvd")),
+    _Uvf(getParam<Real>("Uvf")),
+    _kB(getParam<Real>("kB")),
+    _eV2J(getParam<Real>("eV2J")),
+    _T(getParam<Real>("T")),
+    _Dv(_diffusivity * exp(- _Uvd * _eV2J / _kB / _T)),
+    _burgers(getParam<Real>("burgers")),
+    _c0(exp(- _Uvf * _eV2J / _kB / _T))
 {
 }
 
@@ -43,8 +60,13 @@ ClimbVelocity::computeValue()
 {
   //std::cout << (*_current_node)(0) << std::endl;
 
+  const Real PI = 3.1415926;
+  Real _vc = 2 * PI * _Dv / _burgers / std::log(1e-6/16/_burgers) * (_c0 * 2 - _coupled_val[_qp]);
+  std::cout << "The climb velocity is " << _vc << std::endl;
+  return _vc;
+
   //return _coupled_val[_qp] * 1e-9;
-  return (*_current_node)(0) * 1e-2;
+  //return (*_current_node)(0) * 1e-2;
 }
 
 

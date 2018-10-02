@@ -11,7 +11,6 @@
 #define DDPROBLEM_H
 
 #include "ExternalProblem.h"
-//#include "LoopLink.h"
 
 class DDproblem;
 

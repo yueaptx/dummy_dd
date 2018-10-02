@@ -36,6 +36,16 @@ protected:
   const VariableValue & _coupled_val;
 
   Real _value;
+
+  Real _diffusivity;
+  Real _Uvd;
+  Real _Uvf; //[eV], vacancy formation energy
+  const Real _kB;
+  const Real _eV2J;
+  Real _T;
+  Real _Dv;
+  const Real _burgers;
+  Real _c0; // equilibrium concentation in defect-free crystal
 };
 
 #endif // CLIMBVELOCITY_H

@@ -1,6 +1,14 @@
-#[GlobalParams]
+[GlobalParams]
 #  displacements = 'disp_x disp_y'
-#[]
+  diffusivity = 1.18e-5 # [m^2/s], diffusion coefficient pre-exponential
+  Uvd = 0.61   # [eV], vacancy migration energy
+  Uvf = 0.67  # [eV], vacancy formation energy
+  kB = 1.3806e-23  # [m^2kg/s^2/K], Boltzmann constant
+  eV2J = 1.60218e-19   # [J/eV], convert eV to Joules
+  Omega = 16.3e-30  # [m^3], atomic volume
+  T = 600     # [K], temperature
+  burgers = 0.28567e-9 # [m], burger's vector magnitude
+[]
 
 [Mesh]
   # optionsl Type
@@ -18,18 +26,24 @@
   parallel_type = replicated
 []
 
-#[MeshModifiers]
+[MeshModifiers]
+  [./scale]
+    type = Transform
+    transform = SCALE
+    vector_value = '0.004 0.004 0.004'
+  [../]
 #  [./translate]
 #  type = Transform
 #  transform = TRANSLATE
 #  vector_value = '1e-6 0 0'
 #  [../]
-#  [./rotate]
-#  type = Transform
-#  transform = ROTATE
-#  vector_value = '45 35 45'
-#  [../]
-#[]
+  [./rotate]
+  type = Transform
+  transform = ROTATE
+  #vector_value = '0 0 0'
+  vector_value = '0 -54.74 -45' # Z-X-Z, alpha: first rotate w/rt original X, beta: second rotate w/rt original Y, gamma: third rotate w/rt original Z
+  [../]
+[]
 
 [AuxVariables]
   [./from_master]
