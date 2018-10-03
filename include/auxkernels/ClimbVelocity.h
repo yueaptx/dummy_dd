@@ -42,6 +42,7 @@ protected:
   Real _Uvf; //[eV], vacancy formation energy
   const Real _kB;
   const Real _eV2J;
+  const Real _Omega;
   Real _T;
   Real _Dv;
   const Real _burgers;
