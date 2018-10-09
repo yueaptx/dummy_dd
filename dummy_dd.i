@@ -1,5 +1,5 @@
 [GlobalParams]
-#  displacements = 'disp_x disp_y'
+  #displacements = 'disp_x disp_y disp_z'
   diffusivity = 1.18e-5 # [m^2/s], diffusion coefficient pre-exponential
   Uvd = 0.61   # [eV], vacancy migration energy
   Uvf = 0.67  # [eV], vacancy formation energy
@@ -17,7 +17,7 @@
    type = FileMesh     # import mesh from file
    file = circle.msh   # import the mesh file from Gmsh
    #uniform_refine = 1  # refine the mesh
-  # displacements = 'disp_x disp_y'
+   displacements = 'disp_x disp_y disp_z'
 #  type = GeneratedMesh     # import mesh from file
 #  dim = 1
 #  xmin = 0
@@ -45,6 +45,21 @@
   [../]
 []
 
+[Variables]
+  [./disp_x]
+    order = FIRST
+    #initial_condition = 0
+  [../]
+  [./disp_y]
+    order = FIRST
+    #initial_condition = 0
+  [../]
+  [./disp_z]
+    order = FIRST
+    #initial_condition = 0
+  [../]
+[]
+
 [AuxVariables]
   [./from_master]
 #    order = FIRST
@@ -54,6 +69,57 @@
     order = FIRST
     family = LAGRANGE
   [../]
+  [./wc_x]
+    order = FIRST
+    family = LAGRANGE
+  [../]
+  [./wc_y]
+    order = FIRST
+    family = LAGRANGE
+  [../]
+  [./wc_z]
+    order = FIRST
+    family = LAGRANGE
+  [../]
+[]
+
+[Kernels]
+  [./dxdt]
+    type = TimeDerivative
+    variable = disp_x
+    use_displaced_mesh = true
+  [../]
+  [./dydt]
+    type = TimeDerivative
+    variable = disp_y
+    use_displaced_mesh = true
+  [../]
+  [./dzdt]
+    type = TimeDerivative
+    variable = disp_z
+    use_displaced_mesh = true
+  [../]
+  [./fx]
+    type = CoupledForce
+    variable = disp_x
+    coef = -4
+    v = wc_x
+    use_displaced_mesh = true
+  [../]
+  [./fy]
+    type = CoupledForce
+    variable = disp_y
+    coef = -4
+    v = wc_y
+    use_displaced_mesh = true
+  [../]
+  [./fz]
+    type = CoupledForce
+    variable = disp_z
+    coef = -4
+    v = wc_z
+    use_displaced_mesh = true
+  [../]
 []
 
 [AuxKernels]
@@ -61,6 +127,27 @@
     type = ClimbVelocity
     variable = w_c
     coupled = from_master
+  [../]
+  [./climb_velocity_X]
+    type = ClimbVelocityAux
+    variable = wc_x
+    component = x
+    coupled = from_master
+    #use_displaced_mesh = true
+  [../]
+  [./climb_velocity_Y]
+    type = ClimbVelocityAux
+    variable = wc_y
+    component = y
+    coupled = from_master
+    #use_displaced_mesh = true
+  [../]
+  [./climb_velocity_Z]
+    type = ClimbVelocityAux
+    variable = wc_z
+    component = z
+    coupled = from_master
+    #use_displaced_mesh = true
   [../]
 []
 
@@ -74,7 +161,7 @@
 #[]
 
 [Problem]
-   type = DDproblem # This is the "normal" type of Finite Element Problem in MOOSE
+   type = FEProblem # This is the "normal" type of Finite Element Problem in MOOSE
   # coord_type = RZ # Axisymmetric RZ
   # rz_coord_axis = X # Which axis the symmetry is around
 []
@@ -83,8 +170,8 @@
   type = Transient # Transient problem
   #type = Steady # Steady state problem
   solve_type = PJFNK #Preconditioned Jacobian Free Newton Krylov
-  num_steps = 2
-  dt = 1e-5
+  num_steps = 40
+  dt = 1e-3
   petsc_options_iname = '-pc_type -pc_hypre_type' #Matches with the values below
   petsc_options_value = 'hypre boomeramg'
 []
